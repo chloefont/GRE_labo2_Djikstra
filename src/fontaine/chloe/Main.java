@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         var graph = new CartesianGraphReader<>(
                 new VertexFact(),
-                new SimpleWeightedEdgeFactory<ConcreteVertex>(new ConcreteEdgeWeighter()),
+                new SimpleWeightedEdgeFactory<>(new ConcreteEdgeWeighter()),
                 DATA_FOLDER + "R15_1.txt"
         ).graph();
     }

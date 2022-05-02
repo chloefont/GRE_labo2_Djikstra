@@ -4,7 +4,7 @@ import graph.core.Vertex;
 import graph.core.VertexFactory;
 import graph.data.CartesianVertexData;
 
-public class VertexFact implements VertexFactory<ConcreteVertex, CartesianVertexData /*TODO à changer*/> {
+public class VertexFact implements VertexFactory<ConcreteVertex, CartesianVertexData> {
 
     public VertexFact () {
         super();
@@ -12,6 +12,9 @@ public class VertexFact implements VertexFactory<ConcreteVertex, CartesianVertex
 
     @Override
     public ConcreteVertex makeVertex(int id, CartesianVertexData additionalData) {
-        return new ConcreteVertex(id);
+        CartesianVertexData data = new CartesianVertexData();
+        data.x = additionalData.x;
+        data.y = additionalData.y;
+        return new ConcreteVertex(id, data);
     }
 }
