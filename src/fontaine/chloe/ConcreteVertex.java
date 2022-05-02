@@ -6,12 +6,12 @@ import graph.data.CartesianVertexData;
 public class ConcreteVertex implements Vertex {
     private final int id;
     private final CartesianVertexData position;
+    private long weight;
 
     public ConcreteVertex(int id, CartesianVertexData position) {
         this.id = id;
         this.position = position;
-
-        System.out.println("ConcreteVertex(" + id + ", " + position.x + " " + position.y + ")");
+        this.weight = 0;
     }
 
     @Override
@@ -21,5 +21,9 @@ public class ConcreteVertex implements Vertex {
 
     public CartesianVertexData position() {
         return position;
+    }
+
+    void setWeight(long weight) {
+        this.weight = weight;
     }
 }

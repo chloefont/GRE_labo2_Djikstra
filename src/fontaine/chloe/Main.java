@@ -24,5 +24,8 @@ public class Main {
                 new SimpleWeightedEdgeFactory<>(new ConcreteEdgeWeighter()),
                 DATA_FOLDER + "R15_1.txt"
         ).graph();
+
+        Djikstra djikstra = new Djikstra(graph, 0);
+        djikstra.printPriorityQueue();
     }
 }
