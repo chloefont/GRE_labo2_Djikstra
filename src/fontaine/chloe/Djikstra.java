@@ -10,10 +10,9 @@ import java.util.PriorityQueue;
 
 public class Djikstra {
     private Digraph<ConcreteVertex, SimpleWeightedEdge<ConcreteVertex>> graph;
-    // queue priorité
-    //private PriorityQueue<ConcreteVertex> queue; implémenter Comparator
-    private ConcreteVertex[] priorityQueue;
-    private int priorityQueueSize;
+    private PriorityQueue<ConcreteVertex> priorityQueue;
+    private boolean[] visited;
+    private ConcreteVertex[] predecessors;
 
     public Djikstra(Digraph graph, int firstVertex) {
         this.graph = graph;
@@ -21,29 +20,51 @@ public class Djikstra {
     }
 
     private void init(int firstVertex) {
-        priorityQueue = new ConcreteVertex[graph.getVertices().size()];
-        this.priorityQueueSize = graph.getNVertices();
-        int index = priorityQueueSize - 1;
+        this.visited = new boolean[graph.getNVertices()];
+        this.predecessors = new ConcreteVertex[graph.getNVertices()];
+        this.priorityQueue = new PriorityQueue<>(graph.getVertices());
 
         for (int i = 0; i < graph.getNVertices(); i++) {
             ConcreteVertex vertex = graph.getVertices().get(i);
+            predecessors[vertex.id()] = null;
+
             if (vertex.id() == firstVertex)
                 vertex.setWeight(0);
             else
                 vertex.setWeight(Long.MAX_VALUE);
-            priorityQueue[index--] = vertex;
         }
     }
 
     public void start() {
-        while (priorityQueueSize > 0) {
 
+        while (!priorityQueue.isEmpty()) {
+            ConcreteVertex vertex = priorityQueue.poll();
+            visited[vertex.id()] = true;
+
+            if (vertex.weight() == Long.MAX_VALUE)
+                break;
+
+            for (SimpleWeightedEdge<ConcreteVertex> edge : graph.getSuccessorList(vertex.id())) {
+                ConcreteVertex successor = edge.to();
+
+                if (!visited[successor.id()] && (edge.weight() + vertex.weight()) < successor.weight()) {
+                    successor.setWeight(edge.weight() + vertex.weight());
+                    predecessors[successor.id()] = vertex;
+
+                    //TODO pas très optimisé
+                    priorityQueue.remove(successor);
+                    priorityQueue.add(successor);
+                }
+            }
         }
+
+        printPredecessors();
     }
 
-    public void printPriorityQueue() {
-        for (int i = 0; i < priorityQueueSize; i++) {
-            System.out.print(priorityQueue[i].id() + " ");
+    public void printPredecessors() {
+        for (int i = 0; i < predecessors.length; i++) {
+            System.out.print("(" + graph.getVertices().get(i).weight() + ", " + (predecessors[i] == null ? predecessors[i] : predecessors[i].id()) + ") ");
+
         }
     }
 }
