@@ -4,8 +4,6 @@
  */
 package fontaine.chloe;
 
-import fontaine.chloe.ConcreteEdgeWeighter;
-import fontaine.chloe.VertexFact;
 import graph.core.impl.Digraph;
 import graph.core.impl.SimpleWeightedEdge;
 import graph.core.impl.SimpleWeightedEdgeFactory;
@@ -72,9 +70,9 @@ public class Main {
 
         Digraph graph = new Digraph(vertices, listSucc);
 
-        Djikstra djikstra = new Djikstra(graph, 0);
+        Dijkstra dijkstra = new Dijkstra(graph);
         //djikstra.printPriorityQueue();
-        djikstra.start();
+        dijkstra.start(0, 4);
         System.out.println();
         //djikstra.printPredecessors();
     }
@@ -86,9 +84,8 @@ public class Main {
                 DATA_FOLDER + "R15_1.txt"
         ).graph();
 
-        Djikstra djikstra = new Djikstra(graph, 0);
-
-        djikstra.start();
-        //test();
+//        Dijkstra dijkstra = new Dijkstra(graph);
+//        dijkstra.start(0, 6);
+        test();
     }
 }

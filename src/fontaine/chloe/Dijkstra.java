@@ -1,22 +1,18 @@
 package fontaine.chloe;
 
-import graph.core.Vertex;
 import graph.core.impl.Digraph;
 import graph.core.impl.SimpleWeightedEdge;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 
-public class Djikstra {
+public class Dijkstra {
     private Digraph<ConcreteVertex, SimpleWeightedEdge<ConcreteVertex>> graph;
     private PriorityQueue<ConcreteVertex> priorityQueue;
     private boolean[] visited;
     private ConcreteVertex[] predecessors;
 
-    public Djikstra(Digraph graph, int firstVertex) {
+    public Dijkstra(Digraph graph) {
         this.graph = graph;
-        init(firstVertex);
     }
 
     private void init(int firstVertex) {
@@ -35,13 +31,14 @@ public class Djikstra {
         }
     }
 
-    public void start() {
+    public void start(int origin, int destination) {
+        init(origin);
 
         while (!priorityQueue.isEmpty()) {
             ConcreteVertex vertex = priorityQueue.poll();
             visited[vertex.id()] = true;
 
-            if (vertex.weight() == Long.MAX_VALUE)
+            if (vertex.weight() == Long.MAX_VALUE || vertex.id() == destination)
                 break;
 
             for (SimpleWeightedEdge<ConcreteVertex> edge : graph.getSuccessorList(vertex.id())) {
