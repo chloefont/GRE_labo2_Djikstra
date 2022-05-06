@@ -28,34 +28,27 @@ public class BidirectionnelDijkstra {
         init();
         forwardDijkstra.init(origin);
         backwardDijkstra.init(destination);
+        int currentVertex = origin;;
 
-        Dijkstra currentDijkstra = forwardDijkstra;
-        Dijkstra otherDijkstra = backwardDijkstra;
-
-        int currentVertex = origin;
-
-        while ((currentVertex = currentDijkstra.iteration(origin, destination)) != -1) {
-
-            if (otherDijkstra.isVisited(currentVertex))
+        while (true) {
+            currentVertex = forwardDijkstra.iteration(origin, destination);
+            if (vertexAlreadyComputed(currentVertex))
                 break;
 
-            Dijkstra tmp = currentDijkstra;
-            currentDijkstra = otherDijkstra;
-            otherDijkstra = tmp;
-
-            int tmpOr = origin;
-            origin = destination;
-            destination = tmpOr;
+            currentVertex = backwardDijkstra.iteration(destination, origin);
+            if (vertexAlreadyComputed(currentVertex))
+                break;
         }
 
         totalWeight = forwardDijkstra.getTotalWeight() + backwardDijkstra.getTotalWeight();
 
-        currentDijkstra.computePath(origin, destination);
-        otherDijkstra.computePath(origin, destination);
+        forwardDijkstra.computePath(origin, currentVertex);
+        backwardDijkstra.computePath(destination, currentVertex);
 
-        this.forwardPath.addAll(currentDijkstra.getPath());
-        Collections.reverse(otherDijkstra.getPath());
-        this.forwardPath.addAll(otherDijkstra.getPath());
+        this.forwardPath.addAll(forwardDijkstra.getPath());
+        Collections.reverse(backwardDijkstra.getPath());
+        backwardDijkstra.getPath().remove(0);
+        this.forwardPath.addAll(backwardDijkstra.getPath());
     }
 
     public LinkedList<Integer> getPath() {
@@ -67,5 +60,10 @@ public class BidirectionnelDijkstra {
         System.out.println("Poids du chemin : " + totalWeight);
         System.out.print("Chemin : ");
         Dijkstra.printPath(forwardPath);
+    }
+
+    private boolean vertexAlreadyComputed(int vertexId){
+        // déjà traité si a été visité par les 2 listes
+        return forwardDijkstra.isVisited(vertexId) && backwardDijkstra.isVisited(vertexId);
     }
 }

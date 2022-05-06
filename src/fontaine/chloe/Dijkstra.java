@@ -3,19 +3,38 @@ package fontaine.chloe;
 import graph.core.impl.Digraph;
 import graph.core.impl.SimpleWeightedEdge;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Pour fonctionner, les sommets doivent se distribuer les ids de 0 à n-1
  */
 public class Dijkstra {
+    private class Node implements Comparable<Node> {
+        private final ConcreteVertex vertex;
+        long weight;
+        Node previous;
+        boolean visited;
+
+        private Node(ConcreteVertex vertex, long weight) {
+            this.vertex = vertex;
+            this.weight = weight;
+            this.previous = null;
+            this.visited = false;
+        }
+
+        @Override
+        public int compareTo(Node other) {
+            if (this.weight < other.weight)
+                return -1;
+            if (this.weight > other.weight)
+                return 1;
+            return this.vertex.id() - other.vertex.id();
+        }
+    }
+
     private Digraph<ConcreteVertex, SimpleWeightedEdge<ConcreteVertex>> graph;
-    private PriorityQueue<ConcreteVertex> priorityQueue;
-    private boolean[] visited;
-    private ConcreteVertex[] predecessors;
+    private ArrayList<Node> nodes;
+    private PriorityQueue<Node> priorityQueue;
     private int nbVerticesComputed;
     private LinkedList<Integer> path;
     private long totalWeight;
@@ -25,27 +44,23 @@ public class Dijkstra {
     }
 
     void init(int origin) {
-        this.visited = new boolean[graph.getNVertices()];
-        this.predecessors = new ConcreteVertex[graph.getNVertices()];
-        this.priorityQueue = new PriorityQueue<>(graph.getVertices());
-        this.path = new LinkedList<>();
+        priorityQueue = new PriorityQueue<>(graph.getNVertices());
+        nodes = new ArrayList<>(graph.getNVertices());
         nbVerticesComputed = 0;
         totalWeight = 0;
 
-        for (int i = 0; i < graph.getNVertices(); i++) {
-            ConcreteVertex vertex = graph.getVertices().get(i);
-            predecessors[vertex.id()] = null;
+        for (ConcreteVertex vertex : graph.getVertices()) {
+            if (vertex == null)
+                continue;
 
-            if (vertex.id() == origin) {
-                vertex.setWeight(0);
-                sortPriorityQueue(vertex);
-            } else
-                vertex.setWeight(Long.MAX_VALUE);
+            Node node = new Node(vertex, (vertex.id() == origin) ? 0 : Long.MAX_VALUE);
+            priorityQueue.add(node);
+            nodes.add(vertex.id(), node);
         }
     }
 
     public void start(int origin, int destination) {
-            init(origin);
+        init(origin);
 
         while (!priorityQueue.isEmpty()) {
             if (iteration(origin, destination) == -1)
@@ -54,33 +69,34 @@ public class Dijkstra {
     }
 
     int iteration(int origin, int destination) {
-        ConcreteVertex vertex = priorityQueue.poll();
-        visited[vertex.id()] = true;
+        Node node = priorityQueue.poll();
+        nodes.get(node.vertex.id()).visited = true;
         nbVerticesComputed++;
 
-        if (vertex.weight() == Long.MAX_VALUE)
+        if (node.weight == Long.MAX_VALUE)
             throw new RuntimeException("No path found between " + origin + " and " + destination);
 
-        if (vertex.id() == destination) {
+        if (node.vertex.id() == destination) {
             computePath(origin, destination);
-            totalWeight = vertex.weight();
+            totalWeight = node.weight;
             return -1;
         }
 
-        for (SimpleWeightedEdge<ConcreteVertex> edge : graph.getSuccessorList(vertex.id())) {
-            ConcreteVertex successor = edge.to();
+        for (SimpleWeightedEdge<ConcreteVertex> edge : graph.getSuccessorList(node.vertex.id())) {
+            Node successorNode = nodes.get(edge.to().id());
 
-            if (!visited[successor.id()] && (edge.weight() + vertex.weight()) < successor.weight()) {
-                successor.setWeight(edge.weight() + vertex.weight());
-                predecessors[successor.id()] = vertex;
+            if (!successorNode.visited && (edge.weight() + node.weight) < successorNode.weight) {
+                successorNode.weight = edge.weight() + node.weight;
+                successorNode.previous = node;
 
-                sortPriorityQueue(successor);
+                sortPriorityQueue(successorNode);
             }
         }
         return vertex.id();
     }
 
     void computePath(int origin, int destination) {
+        this.path = new LinkedList<>();
         ConcreteVertex current = graph.getVertices().get(destination);
         path.addFirst(current.id());
 
@@ -96,14 +112,14 @@ public class Dijkstra {
         }
     }
 
-    private void sortPriorityQueue(ConcreteVertex vertexChanged) {
+    private void sortPriorityQueue(Node vertexChanged) {
         //TODO pas très optimisé
         priorityQueue.remove(vertexChanged);
         priorityQueue.add(vertexChanged);
     }
 
     boolean isVisited(int vertex) {
-        return visited[vertex];
+        return nodes.get(vertex).visited;
     }
 
     public List<Integer> getPath() {
@@ -130,4 +146,5 @@ public class Dijkstra {
         System.out.print("Chemin : ");
         printPath(path);
     }
+
 }
