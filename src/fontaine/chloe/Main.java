@@ -71,25 +71,27 @@ public class Main {
         Digraph graph = new Digraph(vertices, listSucc);
 
         Dijkstra dijkstra = new Dijkstra(graph);
-        //djikstra.printPriorityQueue();
         dijkstra.start(0, 4);
         System.out.println();
-        //djikstra.printPredecessors();
     }
 
     public static void main(String[] args) throws IOException {
         var graph = new CartesianGraphReader<>(
                 new VertexFact(),
                 new SimpleWeightedEdgeFactory<>(new ConcreteEdgeWeighter()),
-                DATA_FOLDER + "R15_1.txt"
+                DATA_FOLDER + "R10000_1.txt"
         ).graph();
 
-        BidirectionnelDijkstra dijkstra = new BidirectionnelDijkstra(graph);
-        dijkstra.compute(0, 2);
-        dijkstra.printResults();
+        System.out.println("Biderectionnel");
+        BidirectionnelDijkstra dijkstra1 = new BidirectionnelDijkstra(graph);
+        dijkstra1.compute(0, 9999);
+        dijkstra1.printResults();
 
-//        Dijkstra dijkstra = new Dijkstra(graph);
-//        dijkstra.start(0, 2);
-//        dijkstra.printResults();
+        System.out.println();
+        System.out.println();
+        System.out.println("Classic");
+        Dijkstra dijkstra2 = new Dijkstra(graph);
+        dijkstra2.start(0, 9999);
+        dijkstra2.printResults();
     }
 }

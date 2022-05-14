@@ -38,16 +38,20 @@ public class Dijkstra {
     private int nbVerticesComputed;
     private LinkedList<Integer> path;
     private long totalWeight;
+    private int origin = -1;
+    private int destination = -1;
 
     public Dijkstra(Digraph graph) {
         this.graph = graph;
     }
 
-    void init(int origin) {
+    void init(int origin, int destination) {
         priorityQueue = new PriorityQueue<>(graph.getNVertices());
         nodes = new ArrayList<>(graph.getNVertices());
         nbVerticesComputed = 0;
         totalWeight = 0;
+        this.origin = origin;
+        this.destination = destination;
 
         for (ConcreteVertex vertex : graph.getVertices()) {
             if (vertex == null)
@@ -60,7 +64,7 @@ public class Dijkstra {
     }
 
     public void start(int origin, int destination) {
-        init(origin);
+        init(origin, destination);
 
         while (!priorityQueue.isEmpty()) {
             if (iteration(origin, destination) == -1)
@@ -92,23 +96,18 @@ public class Dijkstra {
                 sortPriorityQueue(successorNode);
             }
         }
-        return vertex.id();
+        return node.vertex.id();
     }
 
     void computePath(int origin, int destination) {
+
         this.path = new LinkedList<>();
-        ConcreteVertex current = graph.getVertices().get(destination);
-        path.addFirst(current.id());
+        Node current = nodes.get(graph.getVertices().get(destination).id());
+        path.addFirst(current.vertex.id());
 
-        while (current.id() != origin) {
-            current = predecessors[current.id()];
-            path.addFirst(current.id());
-        }
-    }
-
-    public void printPredecessors() {
-        for (int i = 0; i < predecessors.length; i++) {
-            System.out.print("(" + graph.getVertices().get(i).weight() + ", " + (predecessors[i] == null ? predecessors[i] : predecessors[i].id()) + ") ");
+        while (current.vertex.id() != origin) {
+            current = current.previous;
+            path.addFirst(current.vertex.id());
         }
     }
 
@@ -122,7 +121,7 @@ public class Dijkstra {
         return nodes.get(vertex).visited;
     }
 
-    public List<Integer> getPath() {
+    public LinkedList<Integer> getPath() {
         return path;
     }
 
@@ -132,6 +131,10 @@ public class Dijkstra {
 
     public int getNbVerticesComputed() {
         return nbVerticesComputed;
+    }
+
+    protected long getWeight(int vertex) {
+        return nodes.get(vertex).weight;
     }
 
     static public void printPath(LinkedList<Integer> path) {
@@ -147,4 +150,11 @@ public class Dijkstra {
         printPath(path);
     }
 
+    public int getOrigin() {
+        return origin;
+    }
+
+    public int getDestination() {
+        return destination;
+    }
 }
